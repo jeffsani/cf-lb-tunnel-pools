@@ -10,7 +10,7 @@ CLOUDFLARED_VERSION="2025.11.1"
 
 # Select the appropriate verison for your OS/Platform
 # STD Versions"
-#FILENAME="cloudflared-amd64.pkg"
+FILENAME="cloudflared-amd64.pkg"
 #FILENAME="cloudflared-arm64.pkg"
 #FILENAME="cloudflared-darwin-amd64.tgz"
 #FILENAME="cloudflared-darwin-arm64.tgz"
@@ -20,7 +20,7 @@ CLOUDFLARED_VERSION="2025.11.1"
 
 # FIPS Versions
 #FILENAME="cloudflared-fips-linux-amd64"
-FILENAME="cloudflared-fips-linux-amd64.deb"
+#FILENAME="cloudflared-fips-linux-amd64.deb"
 #FILENAME="cloudflared-fips-linux-x86_64.rpm"
 
 DOWNLOAD_URL="https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/${FILENAME}"
