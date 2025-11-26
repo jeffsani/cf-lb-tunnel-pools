@@ -1,0 +1,15 @@
+# rename this file to "terraform.tfvars" and fill in your values.
+# Do not commit terraform.tfvars to source control.
+
+# Cloudflare Credentials
+cloudflare_api_token  = "your-super-secret-api-token"
+cloudflare_account_id = "your-account-id-hex-string"
+cloudflare_zone_id    = "your-zone-id-hex-string"
+
+# Configuration
+lb_hostname          = "app.yourdomain.com"
+primary_tunnel_name  = "sf-datacenter-tunnel"
+primary_tunnel_cidr  = "192.168.1.0/24"
+
+failover_tunnel_name = "ny-datacenter-tunnel"
+failover_tunnel_cidr = "192.168.2.0/24"
