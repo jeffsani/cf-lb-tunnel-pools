@@ -1,19 +1,3 @@
-# --- Calculate Tokens (Locals) ---
-# We calculate these here so they are available to the whole module
-locals {
-  primary_token = base64encode(jsonencode({
-    a = var.cloudflare_account_id
-    t = cloudflare_zero_trust_tunnel_cloudflared.primary.id
-    s = random_id.tunnel_secret.b64_std
-  }))
-
-  failover_token = base64encode(jsonencode({
-    a = var.cloudflare_account_id
-    t = cloudflare_zero_trust_tunnel_cloudflared.failover.id
-    s = random_id.tunnel_secret.b64_std
-  }))
-}
-
 # --- Create Cloudflare Tunnels ---
 resource "cloudflare_zero_trust_tunnel_cloudflared" "primary" {
   account_id    = var.cloudflare_account_id
