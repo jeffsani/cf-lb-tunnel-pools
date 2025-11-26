@@ -1,12 +1,5 @@
-variable "cloudflare_api_token" {
-  description = "Cloudflare API Token with permissions for Zero Trust, Zone, and Load Balancing."
-  type        = string
-  sensitive   = true
-}
-
 variable "cloudflare_account_id" {
-  description = "The Cloudflare Account ID."
-  type        = string
+  type = string
 }
 
 variable "cloudflare_zone_id" {
