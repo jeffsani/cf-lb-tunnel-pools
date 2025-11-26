@@ -25,7 +25,7 @@ provider "cloudflare" {
     api_key = var.CLOUDFLARE_API_KEY
 }
 
-# --- Locals: Token Generation Logic ---
+# Helper locals to construct the token manually
 # These calculate the tokens based on resources defined in main.tf.
 
 locals {
