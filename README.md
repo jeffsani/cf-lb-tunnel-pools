@@ -1,8 +1,8 @@
 ![Cloudflare logo](https://imagedelivery.net/EdT7o-fMhJAc7fBSjFjrJQ/aa4e77f8-4845-4551-771e-91ac54342e00/square "Cloudflare")
 
-<H1>Terraform Scripts to Automate the Deployment of Cloudflare Load Balancer, HA Pools, and CF Tunnels as Enspoints</H1>
+<H1>Terraform Scripts to Automate the Deployment of Cloudflare Load Balancer, HA Pools, Pool Monitor and CF Tunnels as Endpoints</H1>
 <H2>Description</H2>
-This set of terraform files and linux script automates the setup of a Cloudflare Load Balancer, LB Pools, Pool Monitor, Cloudflare Tunnel, and Tunnel Routes.  The outputs include the public URL to access the Load Balancer, the tunnel ids and tokens which you will pass to a linux script/command line used to install a Cloudflare Tunnel instance or replica.  An example shell script to use on the target host is also provided. 
+This set of terraform files and linux script automates the setup of a Cloudflare Load Balancer, Primary and Failover LB Pools, Pool Monitor, Cloudflare Tunnel, and Tunnel Routes.  The outputs include the public URL to access the Load Balancer, the tunnel ids and tokens which you will pass to a linux script/command line used to install a Cloudflare Tunnel instance or replica.  An example shell script to use on the target host is also provided. 
 
 <H2>Prerequisites:</H2>
  - You must have an active Cloudflare Zone (domain)
