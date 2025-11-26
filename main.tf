@@ -1,3 +1,8 @@
+# --- Random Secret Generator ---
+resource "random_id" "tunnel_secret" {
+  byte_length = 32
+}
+
 # --- Create Cloudflare Tunnels ---
 resource "cloudflare_zero_trust_tunnel_cloudflared" "primary" {
   account_id    = var.cloudflare_account_id
