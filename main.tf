@@ -1,27 +1,33 @@
+# --- Calculate Tokens (Locals) ---
+# We calculate these here so they are available to the whole module
+locals {
+  primary_token = base64encode(jsonencode({
+    a = var.cloudflare_account_id
+    t = cloudflare_zero_trust_tunnel_cloudflared.primary.id
+    s = random_id.tunnel_secret.b64_std
+  }))
 
-
-# --- 0. Helper: Generate Tunnel Secrets ---
-# Tunnels require a 32-byte base64 encoded secret. We generate this automatically.
-resource "random_id" "tunnel_secret" {
-  byte_length = 32
+  failover_token = base64encode(jsonencode({
+    a = var.cloudflare_account_id
+    t = cloudflare_zero_trust_tunnel_cloudflared.failover.id
+    s = random_id.tunnel_secret.b64_std
+  }))
 }
 
-# --- 1. Create Cloudflare Tunnels (Requirement #3) ---
-
+# --- Create Cloudflare Tunnels ---
 resource "cloudflare_zero_trust_tunnel_cloudflared" "primary" {
-  account_id = var.cloudflare_account_id
-  name       = var.primary_tunnel_name
-  secret     = random_id.tunnel_secret.b64_std
+  account_id    = var.cloudflare_account_id
+  name          = var.primary_tunnel_name
+  tunnel_secret = random_id.tunnel_secret.b64_std
 }
 
 resource "cloudflare_zero_trust_tunnel_cloudflared" "failover" {
-  account_id = var.cloudflare_account_id
-  name       = var.failover_tunnel_name
-  secret     = random_id.tunnel_secret.b64_std
+  account_id    = var.cloudflare_account_id
+  name          = var.failover_tunnel_name
+  tunnel_secret = random_id.tunnel_secret.b64_std
 }
 
-# --- 2. Create Tunnel Routes (Requirement #4) ---
-
+# --- Create Tunnel Routes ---
 resource "cloudflare_zero_trust_tunnel_cloudflared_route" "primary_route" {
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.primary.id
@@ -36,8 +42,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_route" "failover_route" {
   comment    = "Route for Failover LB Tunnel"
 }
 
-# --- 3. Create LB Monitor (Requirement #7) ---
-
+# --- Create LB Monitor ---
 resource "cloudflare_load_balancer_monitor" "http_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "http"
@@ -50,20 +55,19 @@ resource "cloudflare_load_balancer_monitor" "http_monitor" {
   description    = "Basic HTTP Monitor for Tunnels"
 }
 
-# --- 4. Create LB Pools (Requirement #2 & #5) ---
-
+# --- Create LB Pools ---
 resource "cloudflare_load_balancer_pool" "primary_pool" {
   account_id = var.cloudflare_account_id
   name       = "${var.primary_tunnel_name}-pool"
   monitor    = cloudflare_load_balancer_monitor.http_monitor.id
 
-  origins {
+  origins = [{
     name    = "primary-tunnel-origin"
-    # Logic: {tunnel-id}.cfargotunnel.com
     address = "${cloudflare_zero_trust_tunnel_cloudflared.primary.id}.cfargotunnel.com"
     weight  = 1
     enabled = true
-  }
+    header  = {}
+  }]
 }
 
 resource "cloudflare_load_balancer_pool" "failover_pool" {
@@ -71,28 +75,27 @@ resource "cloudflare_load_balancer_pool" "failover_pool" {
   name       = "${var.failover_tunnel_name}-pool"
   monitor    = cloudflare_load_balancer_monitor.http_monitor.id
 
-  origins {
+  origins = [{
     name    = "failover-tunnel-origin"
-    # Logic: {tunnel-id}.cfargotunnel.com
     address = "${cloudflare_zero_trust_tunnel_cloudflared.failover.id}.cfargotunnel.com"
     weight  = 1
     enabled = true
-  }
+    header  = {}
+  }]
 }
 
-# --- 5. Create Load Balancer (Requirement #1 & #6) ---
-
+# --- Create Load Balancer ---
 resource "cloudflare_load_balancer" "lb" {
-  zone_id          = var.cloudflare_zone_id
-  name             = var.lb_hostname
-  
-  # Requirement: Configure 1 pool as primary
-  default_pool_ids = [cloudflare_load_balancer_pool.primary_pool.id]
-  
-  # Requirement: Configure the other pool as failover
-  fallback_pool_id = cloudflare_load_balancer_pool.failover_pool.id
-  
-  description      = "LB with Tunnel Backends"
-  proxied          = true
-  steering_policy  = "off" # Use default pool order (Failover logic)
+  zone_id = var.cloudflare_zone_id
+  name    = var.lb_hostname
+
+  # v5 FIX: Renamed from 'default_pool_ids' to 'default_pools'
+  default_pools = [cloudflare_load_balancer_pool.primary_pool.id]
+
+  # v5 FIX: Renamed from 'fallback_pool_id' to 'fallback_pool'
+  fallback_pool = cloudflare_load_balancer_pool.failover_pool.id
+
+  description     = "LB with Tunnel Backends"
+  proxied         = true
+  steering_policy = "off"
 }
